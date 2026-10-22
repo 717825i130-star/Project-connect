@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // USERS COLLECTION
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create, update: if isOwner(userId) && isValidId(userId);
+      allow delete: if false;
+    }
+
+    // PROBLEMS COLLECTION
+    match /problems/{problemId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(problemId) && request.resource.data.staffId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.staffId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.staffId == request.auth.uid;
+    }
+
+    // REQUESTS COLLECTION
+    match /requests/{requestId} {
+      allow get: if isSignedIn() && (resource.data.studentId == request.auth.uid || resource.data.staffId == request.auth.uid);
+      allow list: if isSignedIn() && (resource.data.studentId == request.auth.uid || resource.data.staffId == request.auth.uid);
+      allow create: if isSignedIn() && isValidId(requestId) && request.resource.data.studentId == request.auth.uid;
+      allow update: if isSignedIn() && (resource.data.studentId == request.auth.uid || resource.data.staffId == request.auth.uid);
+      allow delete: if isSignedIn() && resource.data.studentId == request.auth.uid;
+    }
+
+    // PROJECTS COLLECTION
+    match /projects/{projectId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(projectId);
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn() && resource.data.staffId == request.auth.uid;
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Represents student or faculty staff user profile in ProjectConnect",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "role": { "type": "string", "enum": ["student", "staff"] },
+        "fullName": { "type": "string", "maxLength": 120 },
+        "department": { "type": "string", "maxLength": 120 },
+        "avatarUrl": { "type": "string", "maxLength": 1024 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "email", "role", "fullName", "department"]
+    },
+    "ProjectProblem": {
+      "title": "ProjectProblem",
+      "description": "Faculty staff published project problem statement",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "domain": { "type": "string", "maxLength": 100 },
+        "description": { "type": "string", "maxLength": 4000 },
+        "expectedSolution": { "type": "string", "maxLength": 4000 },
+        "requiredSkills": { "type": "array" },
+        "difficulty": { "type": "string", "enum": ["Beginner", "Intermediate", "Advanced"] },
+        "maxTeamSize": { "type": "number" },
+        "deadline": { "type": "string", "maxLength": 30 },
+        "staffId": { "type": "string", "maxLength": 128 },
+        "staffName": { "type": "string", "maxLength": 120 },
+        "staffDepartment": { "type": "string", "maxLength": 120 },
+        "status": { "type": "string", "enum": ["Available", "Assigned", "Archived"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "domain", "description", "expectedSolution", "difficulty", "staffId", "status"]
+    },
+    "ProjectRequest": {
+      "title": "ProjectRequest",
+      "description": "Student work request submitted on a project problem",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "problemId": { "type": "string", "maxLength": 128 },
+        "problemTitle": { "type": "string", "maxLength": 200 },
+        "domain": { "type": "string", "maxLength": 100 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "studentName": { "type": "string", "maxLength": 120 },
+        "studentDepartment": { "type": "string", "maxLength": 120 },
+        "studentYear": { "type": "string", "maxLength": 40 },
+        "staffId": { "type": "string", "maxLength": 128 },
+        "pitchNote": { "type": "string", "maxLength": 2000 },
+        "proposedTeamSize": { "type": "number" },
+        "status": { "type": "string", "enum": ["Pending", "Approved", "Declined"] },
+        "staffNote": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "problemId", "studentId", "staffId", "pitchNote", "status"]
+    },
+    "ActiveProject": {
+      "title": "ActiveProject",
+      "description": "Formed project workspace with team members, proposal, and milestones",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "problemId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "domain": { "type": "string", "maxLength": 100 },
+        "staffId": { "type": "string", "maxLength": 128 },
+        "staffName": { "type": "string", "maxLength": 120 },
+        "studentLeaderId": { "type": "string", "maxLength": 128 },
+        "studentLeaderName": { "type": "string", "maxLength": 120 },
+        "status": { "type": "string", "enum": ["Approved", "Proposal Needed", "In Progress", "Needs Revision", "Completed"] },
+        "progressPercent": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "problemId", "title", "domain", "staffId", "studentLeaderId", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile collection containing student and staff details"
+    },
+    "/problems/{problemId}": {
+      "schema": "ProjectProblem",
+      "description": "Public catalog of project problems authored by faculty staff"
+    },
+    "/requests/{requestId}": {
+      "schema": "ProjectRequest",
+      "description": "Student project collaboration requests"
+    },
+    "/projects/{projectId}": {
+      "schema": "ActiveProject",
+      "description": "Active student-faculty project workspaces"
+    }
+  }
+}
